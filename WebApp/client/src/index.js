@@ -13,6 +13,7 @@ import 'antd/dist/antd.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import MatchesPage from './pages/MatchesPage';
+import GrandSlams from './pages/GrandSlams';
 
 ReactDOM.render(
   <div>
@@ -22,6 +23,11 @@ ReactDOM.render(
 							path="/"
 							render={() => (
 								<HomePage />
+							)}/>
+		<Route exact
+							path="/grand"
+							render={() => (
+								<GrandSlams />
 							)}/>
         <Route exact
 							path="/players"

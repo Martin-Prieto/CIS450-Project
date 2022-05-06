@@ -7,44 +7,9 @@ import {
 
 import MenuBar from '../components/MenuBar';
 import { getAllMatches, getAllPlayers } from '../fetcher'
+import background from "../Images/red2.png";
 const { Column, ColumnGroup } = Table;
 const { Option } = Select;
-
-
-const playerColumns = [
-  {
-    title: 'First Name',
-    dataIndex: 'firstName',
-    key: 'firstName',
-    sorter: (a, b) => a.firstName.localeCompare(b.firstName),
-    render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>
-  },
-  {
-    title: 'Last Name',
-    dataIndex: 'lastName',
-    key: 'lastName',
-    sorter: (a, b) => a.lastName.localeCompare(b.lastName),
-  },
-  {
-    title: 'Nationality',
-    dataIndex: 'Nationality',
-    key: 'Nationality',
-    sorter: (a, b) => a.Nationality.localeCompare(b.Nationality)
-  },
-  {
-    title: 'Date of Birth',
-    dataIndex: 'dateOfBirth',
-    key: 'dateOfBirth',
-    sorter: (a, b) => a.dateOfBirth - b.dateOfBirth
-    
-  },
-  // TASK 7: add a column for Potential, with the ability to (numerically) sort ,
-  {
-    title: 'Hand',
-    dataIndex: 'hand',
-    key: 'hand',    
-  },
-];
 
 const matchColumns = [
   {
@@ -136,23 +101,12 @@ class HomePage extends React.Component {
   render() {
 
     return (
-      <div>
+      <div style={{ backgroundImage: `url(${background})`, backgroundPosition: 'center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', position: 'absolute', top: '0', bottom: '0', width: '100%'}}>
         <MenuBar />
-        <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-          <h3>Players</h3>
-          <Table dataSource={this.state.playersResults} columns={playerColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/>
-        </div>
         <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
-          <h3>Matches</h3>
-          <Select defaultValue="D1" style={{ width: 120 }} onChange={this.leagueOnChange}>
-            <Option value="D1">Bundesliga</Option>
-             {/* TASK 3: Take a look at Dataset Information.md from MS1 and add other options to the selector here  */}
-             <Option value="SP1">La Liga</Option>
-          </Select>
-              <Table dataSource={this.state.matchesResults} columns={matchColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/>
+          <h3 style={{ color:'white' }}>Recent Matches</h3>
+              <Table dataSource={this.state.matchesResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 560 }}/>
         </div>
-
-
       </div>
     )
   }
@@ -160,4 +114,3 @@ class HomePage extends React.Component {
 }
 
 export default HomePage
-
