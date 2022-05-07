@@ -16,7 +16,7 @@ const matchColumns = [
     title: 'Tourney',
     dataIndex: 'tourney',
     key: 'tourney',
-    sorter: (a, b) => a.firstName.localeCompare(b.firstName),
+    sorter: (a, b) => a.Name.localeCompare(b.Name),
   },
   {
     title: 'Date',

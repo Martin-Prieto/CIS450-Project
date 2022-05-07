@@ -25,17 +25,11 @@ const wideFormat = format('.3r');
 
 const playerColumns = [
     {
-      title: 'First Name',
-      dataIndex: 'firstName',
-      key: 'firstName',
-      sorter: (a, b) => a.firstName.localeCompare(b.firstName),
+      title: 'Name',
+      dataIndex: 'Name',
+      key: 'Name',
+      sorter: (a, b) => a.Name.localeCompare(b.Name),
       render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>
-    },
-    {
-      title: 'Last Name',
-      dataIndex: 'lastName',
-      key: 'lastName',
-      sorter: (a, b) => a.lastName.localeCompare(b.lastName),
     },
     {
       title: 'Nationality',
@@ -65,11 +59,9 @@ class PlayersPage extends React.Component {
         this.state = {
             nameQuery: '',
             nationalityQuery: '',
-            clubQuery: '',
-            ratingHighQuery: 100,
-            ratingLowQuery: 0,
-            potHighQuery: 100,
-            potLowQuery: 0,
+            handQuery: '',
+            birthHighQuery: 2024,
+            birthLowQuery: 0,
             selectedPlayerId: window.location.search ? window.location.search.substring(1).split('=')[1] : 229594,
             selectedPlayerDetails: null,
             playersResults: []
@@ -79,9 +71,8 @@ class PlayersPage extends React.Component {
         this.updateSearchResults = this.updateSearchResults.bind(this)
         this.handleNameQueryChange = this.handleNameQueryChange.bind(this)
         this.handleNationalityQueryChange = this.handleNationalityQueryChange.bind(this)
-        this.handleClubQueryChange = this.handleClubQueryChange.bind(this)
-        this.handleRatingChange = this.handleRatingChange.bind(this)
-        this.handlePotentialChange = this.handlePotentialChange.bind(this)
+        this.handleHandQueryChange = this.handleHandQueryChange.bind(this)
+        this.handleBirthChange = this.handleBirthChange.bind(this)
     }
 
     
@@ -90,9 +81,9 @@ class PlayersPage extends React.Component {
         this.setState({ nameQuery: event.target.value })
     }
 
-    handleClubQueryChange(event) {
+    handleHandQueryChange(event) {
         // TASK 20: update state variables appropriately. See handleNameQueryChange(event) for reference
-        this.setState({ clubQuery: event.target.value })
+        this.setState({ handQuery: event.target.value })
     }
 
     handleNationalityQueryChange(event) {
@@ -100,28 +91,20 @@ class PlayersPage extends React.Component {
         this.setState({ nationalityQuery: event.target.value })
     }
 
-    handleRatingChange(value) {
-        this.setState({ ratingLowQuery: value[0] })
-        this.setState({ ratingHighQuery: value[1] })
+    handleBirthChange(value) {
+        this.setState({ birthLowQuery: value[0] })
+        this.setState({ birthHighQuery: value[1] })
     }
-
-    handlePotentialChange(value) {
-        // TASK 22: parse value and update state variables appropriately. See handleRatingChange(value) for reference
-        this.setState({ potLowQuery: value[0] })
-        this.setState({ potHighQuery: value[1] })
-    }
-
-
 
     updateSearchResults() {
         //TASK 23: call getPlayerSearch and update playerResults in state. See componentDidMount() for a hint
-        getPlayerSearch(this.state.nameQuery, this.state.nationalityQuery, this.state.clubQuery, this.state.ratingHighQuery, this.state.ratingLowQuery, this.state.potHighQuery, this.state.potLowQuery, null, null).then(res => {
+        getPlayerSearch(this.state.nameQuery, this.state.nationalityQuery, this.state.handQuery, this.state.birthHighQuery, this.state.birthLowQuery, null, null).then(res => {
             this.setState({ playersResults: res.results })
         })
     }
 
     componentDidMount() {
-        getPlayerSearch(this.state.nameQuery, this.state.nationalityQuery, this.state.clubQuery, this.state.ratingHighQuery, this.state.ratingLowQuery, this.state.potHighQuery, this.state.potLowQuery, null, null).then(res => {
+        getPlayerSearch(this.state.nameQuery, this.state.nationalityQuery, this.state.handQuery, this.state.birthHighQuery, this.state.birthLowQuery, null, null).then(res => {
             this.setState({ playersResults: res.results })
         })
 
@@ -157,10 +140,9 @@ class PlayersPage extends React.Component {
                             <label style={{color:'white'}}>Nationality</label>
                             <FormInput placeholder="Nationality" value={this.state.nationalityQuery} onChange={this.handleNationalityQueryChange} />
                         </FormGroup></Col>
-                        {/* TASK 26: Create a column for Club, using the elements and style we followed in the above two columns. Use the onChange method (handleClubQueryChange)  */}
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label style={{color:'white'}}>Hand</label>
-                            <FormInput placeholder="Hand" value={this.state.clubQuery} onChange={this.handleClubQueryChange} />
+                            <FormInput placeholder="Hand" value={this.state.handQuery} onChange={this.handleHandQueryChange} />
                         </FormGroup></Col>
                     </Row>
                     <br></br>
@@ -168,7 +150,7 @@ class PlayersPage extends React.Component {
                         <Col flex={2}>
                             <FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                                 <label style={{color:'white'}}>Date of birth</label>
-                                <Slider  min={1970} max={2022} range defaultValue={[1970, 2022]} onChange={this.handleRatingChange} />
+                                <Slider  min={1970} max={2022} range defaultValue={[1970, 2022]} onChange={this.handleBirthChange} />
                             </FormGroup>
                         </Col>
                         {/* TASK 27: Create a column with a label and slider in a FormGroup item for filtering by Potential. See the column above for reference and use the onChange method (handlePotentialChange)  */}
@@ -206,7 +188,7 @@ class PlayersPage extends React.Component {
                         </Row>
                             <Row gutter='30' align='middle' justify='left'>
                                 <Col>
-                                <h5>{this.state.selectedPlayerDetails.Club}</h5>
+                                <h5>{this.state.selectedPlayerDetails.Hand}</h5>
                                 </Col>
                                 <Col>
                                 <h5>{this.state.selectedPlayerDetails.JerseyNumber}</h5>
@@ -219,11 +201,11 @@ class PlayersPage extends React.Component {
                             </br>
                             <Row gutter='30' align='middle' justify='left'>
                                 <Col>
-                                Age: {this.state.selectedPlayerDetails.Age}
+                                Age: {this.state.selectedPlayerDetails.age}
                                 </Col>
                                 {/* TASK 28: add two more columns here for Height and Weight, with the appropriate labels as above */}
                                 <Col>
-                                Height: {this.state.selectedPlayerDetails.Height}
+                                Height: {this.state.selectedPlayerDetails.height}
                                 </Col>
                                 <Col>
                                 Weight: {this.state.selectedPlayerDetails.Weight}
@@ -261,11 +243,9 @@ class PlayersPage extends React.Component {
                             <Rate disabled defaultValue={this.state.selectedPlayerDetails.Skill} />
                             <h6>International Reputation</h6>
                             <Rate disabled defaultValue={this.state.selectedPlayerDetails.InternationalReputation} />
-                            {/* TASK 30: create a star rating component for 'InternationalReputation'. Make sure you use the 'disabled' option as above to ensure it is read-only*/}
                             <Divider/>
                             <h6>Best Rating</h6>
                                 <Progress style={{ width: '20vw'}} value={this.state.selectedPlayerDetails.BestOverallRating} >{this.state.selectedPlayerDetails.BestOverallRating}</Progress>
-                                {/* TASK 31: create the headings and progress bars for 'Potential' and 'Rating'. Use the same style as the one above for 'Best Rating'.*/}
                                 
                             <h6>Potential</h6>
                                 <Progress style={{ width: '20vw'}} value={this.state.selectedPlayerDetails.Potential} >{this.state.selectedPlayerDetails.Potential}</Progress>    
@@ -274,7 +254,6 @@ class PlayersPage extends React.Component {
                                 <Progress style={{ width: '20vw'}} value={this.state.selectedPlayerDetails.Rating} >{this.state.selectedPlayerDetails.Rating}</Progress>    
                                 </Col >
                                 <Col  push={2} flex={2}>
-                                {/*TASK 32: In case the player is a GK, show a radar chart (replacing 'null' below) with the labels: Agility, Ball Control, Passing, Positioning, Stamina, Strength */}
                                 </Col>
                             </Row>
                         </CardBody>

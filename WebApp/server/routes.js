@@ -42,7 +42,7 @@ async function all_matches(req, res) {
             pagesize = req.query.pagesize;
         }
 
-        connection.query(`SELECT M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name_first AS winner, P2.name_first AS loser, score, best_of
+        connection.query(`SELECT M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score, best_of
         FROM Matches M, Players P1, Players P2
         WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id
         LIMIT ${pagesize}
@@ -58,7 +58,7 @@ async function all_matches(req, res) {
 
     } else {
         // we have implemented this for you to see how to return results by querying the database
-        connection.query(`SELECT M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name_first AS winner, P2.name_first AS loser, score, best_of
+        connection.query(`SELECT M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score, best_of
         FROM Matches M, Players P1, Players P2
         WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id`, function (error, results, fields) {
 
@@ -82,9 +82,9 @@ async function all_players(req, res) {
             pagesize = req.query.pagesize;
         }
 
-        connection.query(`SElECT player_id AS PlayerId, name_first AS firstName, name_last AS lastName, hand, dob as dateOfBirth, ioc as Nationality, player_id AS PlayerId
+        connection.query(`SElECT player_id AS PlayerId, name AS Name, hand, dob as dateOfBirth, ioc as Nationality, player_id AS PlayerId
         FROM Players
-        ORDER BY firstName        
+        ORDER BY Name        
         LIMIT ${pagesize}
         OFFSET ${(req.query.page - 1) * pagesize}`, function (error, results, fields) {
 
@@ -97,10 +97,94 @@ async function all_players(req, res) {
         });
 
     } else {
-        connection.query(`SElECT player_id AS PlayerId, name_first AS firstName, name_last AS lastName, hand, dob as dateOfBirth, ioc as Nationality
+        connection.query(`SElECT player_id AS PlayerId, name AS Name, hand, dob as dateOfBirth, ioc as Nationality
         FROM Players
-        ORDER BY firstName`, function (error, results, fields) {
+        ORDER BY Name`, function (error, results, fields) {
 
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+    }
+}
+
+async function player(req, res) {
+    // TODO: TASK 7: implement and test, potentially writing your own (ungraded) tests
+
+    if (req.query.id && Number.isInteger(parseInt(req.query.id))) {
+        connection.query(`SELECT player_id AS PlayerId, Name, dob AS dateOfBirth, ioc AS Nationality, height, 
+        CAST(DATEDIFF( Now(), dob )/365.25 AS UNSIGNED) AS age
+        FROM Players 
+        WHERE player_id = ${req.query.id}`, function (error, results, fields) {
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+             }
+            });
+    } else { res.json({ results: {} }) }
+}
+
+async function search_players(req, res) {
+    // TODO: TASK 9: implement and test, potentially writing your own (ungraded) tests
+    // IMPORTANT: in your SQL LIKE matching, use the %query% format to match the search query to substrings, not just the entire string
+
+    var name = '';
+    if (req.query.Name != null) {
+        name = req.query.Name;
+    }
+    var nationality = '';
+    if (req.query.Nationality != null) {
+        nationality = req.query.Nationality;
+    }
+    var hand = '';
+    if (req.query.Hand != null) {
+        hand = req.query.Hand;
+    }
+    var birthlow = 0;
+    if (req.query.BirthLow != null && !isNaN(req.query.BirthLow)) {
+        birthlow = req.query.BirthLow;
+    }
+    var birthhigh = 100;
+    if (req.query.BirthHigh != null && !isNaN(req.query.BirthHigh)) {
+        birthhigh = req.query.BirthHigh;
+    }
+    if (req.query.page && !isNaN(req.query.page)) {
+        var pagesize = 10;
+        if (req.query.pagesize && !isNaN(req.query.pagesize)) {
+            pagesize = req.query.pagesize;
+        }
+
+        connection.query(`SELECT player_id AS PlayerId, Name, ioc AS Nationality, 
+        FROM Players
+        WHERE Name LIKE '%${name}%' AND ioc LIKE '%${nationality}%' AND hand LIKE '%${hand}%' AND dob >= ${birthlow}
+            AND dob <= ${birthhigh}
+        ORDER BY Name
+        LIMIT ${pagesize}
+        OFFSET ${(req.query.page - 1) * pagesize}
+        `, function (error, results, fields) {
+    
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+
+    } else {
+        console.log(birthlow)
+        connection.query(`SELECT player_id AS PlayerId, Name, ioc AS Nationality, dob AS dateOfBirth, hand
+        FROM Players
+        WHERE Name LIKE '%${name}%' AND ioc LIKE '%${nationality}%' AND hand LIKE '%${hand}%' AND dob >= ${birthlow}
+        AND dob <= ${birthhigh}
+        ORDER BY Name
+        `, function (error, results, fields) {
+    
             if (error) {
                 console.log(error)
                 res.json({ error: error })
@@ -116,4 +200,6 @@ module.exports = {
     hello,
     all_matches,
     all_players,
+    player,
+    search_players,
 }

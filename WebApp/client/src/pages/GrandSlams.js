@@ -14,17 +14,11 @@ const { Option } = Select;
 
 const playerColumns = [
   {
-    title: 'First Name',
-    dataIndex: 'firstName',
-    key: 'firstName',
-    sorter: (a, b) => a.firstName.localeCompare(b.firstName),
+    title: 'Name',
+    dataIndex: 'Name',
+    key: 'Name',
+    sorter: (a, b) => a.Name.localeCompare(b.Name),
     render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>
-  },
-  {
-    title: 'Last Name',
-    dataIndex: 'lastName',
-    key: 'lastName',
-    sorter: (a, b) => a.lastName.localeCompare(b.lastName),
   },
   {
     title: 'Nationality',
@@ -52,7 +46,7 @@ const matchColumns = [
     title: 'Tourney',
     dataIndex: 'tourney',
     key: 'tourney',
-    sorter: (a, b) => a.firstName.localeCompare(b.firstName),
+    sorter: (a, b) => a.Name.localeCompare(b.Name),
   },
   {
     title: 'Date',

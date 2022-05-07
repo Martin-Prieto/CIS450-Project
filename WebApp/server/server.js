@@ -20,6 +20,10 @@ app.get('/matches/:league', routes.all_matches)
 // Route 4 - register as GET 
 app.get('/players', routes.all_players)
 
+app.get('/player', routes.player)
+
+app.get('/search/players', routes.search_players)
+
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
 });
