@@ -42,7 +42,7 @@ async function all_matches(req, res) {
             pagesize = req.query.pagesize;
         }
 
-        connection.query(`SELECT tourney_name AS tourney, tourney_date AS date, surface, P1.name_first AS winner, P2.name_first AS looser, score, best_of
+        connection.query(`SELECT M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name_first AS winner, P2.name_first AS loser, score, best_of
         FROM Matches M, Players P1, Players P2
         WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id
         LIMIT ${pagesize}
@@ -58,7 +58,7 @@ async function all_matches(req, res) {
 
     } else {
         // we have implemented this for you to see how to return results by querying the database
-        connection.query(`SELECT tourney_name AS tourney, tourney_date AS date, surface, P1.name_first AS winner, P2.name_first AS looser, score, best_of
+        connection.query(`SELECT M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name_first AS winner, P2.name_first AS loser, score, best_of
         FROM Matches M, Players P1, Players P2
         WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id`, function (error, results, fields) {
 
@@ -82,7 +82,7 @@ async function all_players(req, res) {
             pagesize = req.query.pagesize;
         }
 
-        connection.query(`SElECT name_first AS firstName, name_last AS lastName, hand, dob as dateOfBirth, ioc as Nationality, player_id AS PlayerId
+        connection.query(`SElECT player_id AS PlayerId, name_first AS firstName, name_last AS lastName, hand, dob as dateOfBirth, ioc as Nationality, player_id AS PlayerId
         FROM Players
         ORDER BY firstName        
         LIMIT ${pagesize}
@@ -97,7 +97,7 @@ async function all_players(req, res) {
         });
 
     } else {
-        connection.query(`SElECT name_first AS firstName, name_last AS lastName, hand, dob as dateOfBirth, ioc as Nationality
+        connection.query(`SElECT player_id AS PlayerId, name_first AS firstName, name_last AS lastName, hand, dob as dateOfBirth, ioc as Nationality
         FROM Players
         ORDER BY firstName`, function (error, results, fields) {
 
@@ -110,18 +110,6 @@ async function all_players(req, res) {
         });
     }
 }
-
-
-// ********************************************
-//             MATCH-SPECIFIC ROUTES
-// ********************************************
-
-// Route 5 (handler)
-
-
-// ********************************************
-//             SEARCH ROUTES
-// ********************************************
 
 
 module.exports = {

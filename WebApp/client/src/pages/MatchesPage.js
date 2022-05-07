@@ -17,7 +17,6 @@ const matchColumns = [
     dataIndex: 'tourney',
     key: 'tourney',
     sorter: (a, b) => a.firstName.localeCompare(b.firstName),
-    render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>
   },
   {
     title: 'Date',
@@ -34,14 +33,15 @@ const matchColumns = [
     title: 'Winner',
     dataIndex: 'winner',
     key: 'winner',
-    sorter: (a, b) => a.winner - b.winner
-    
+    sorter: (a, b) => a.winner - b.winner,
+    render: (text, row) => <a href={`/players?id=${row.WinnerId}`}>{text}</a>
   },
   {
-    title: 'Looser',
-    dataIndex: 'looser',
+    title: 'Loser',
+    dataIndex: 'loser',
     key: 'loser',   
-    sorter: (a, b) => a.looser - b.looser 
+    sorter: (a, b) => a.loser - b.loser,
+    render: (text, row) => <a href={`/players?id=${row.LooserId}`}>{text}</a> 
   },
   {
     title: 'Score',
@@ -113,7 +113,7 @@ class HomePage extends React.Component {
                 <Table dataSource={this.state.matchesResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
             </div>
             <div style={{ width: '50vw', margin: '0 2vh', marginTop: '2vh' }}>
-                <h3 style={{ color:'white' }}>Looser</h3>
+                <h3 style={{ color:'white' }}>Loser</h3>
                 <Table dataSource={this.state.matchesResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
             </div>
         </div>

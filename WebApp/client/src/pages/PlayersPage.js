@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
+import { getAllMatches, getAllPlayers } from '../fetcher'
 
 import {
     Table,
@@ -13,6 +14,7 @@ import {
 } from 'antd'
 import { RadarChart } from 'react-vis';
 import { format } from 'd3-format';
+import background from "../Images/red2.png";
 
 
 
@@ -23,49 +25,38 @@ const wideFormat = format('.3r');
 
 const playerColumns = [
     {
-        title: 'Name',
-        dataIndex: 'Name',
-        key: 'Name',
-        sorter: (a, b) => a.Name.localeCompare(b.Name),
-        render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>
+      title: 'First Name',
+      dataIndex: 'firstName',
+      key: 'firstName',
+      sorter: (a, b) => a.firstName.localeCompare(b.firstName),
+      render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>
     },
     {
-        title: 'Nationality',
-        dataIndex: 'Nationality',
-        key: 'Nationality',
-        sorter: (a, b) => a.Nationality.localeCompare(b.Nationality)
+      title: 'Last Name',
+      dataIndex: 'lastName',
+      key: 'lastName',
+      sorter: (a, b) => a.lastName.localeCompare(b.lastName),
     },
     {
-        title: 'Rating',
-        dataIndex: 'Rating',
-        key: 'Rating',
-        sorter: (a, b) => a.Rating - b.Rating
-
+      title: 'Nationality',
+      dataIndex: 'Nationality',
+      key: 'Nationality',
+      sorter: (a, b) => a.Nationality.localeCompare(b.Nationality)
     },
-    // TASK 19: copy over your answers for tasks 7 - 9 to add columns for potential, club, and value
+    {
+      title: 'Date of Birth',
+      dataIndex: 'dateOfBirth',
+      key: 'dateOfBirth',
+      sorter: (a, b) => a.dateOfBirth - b.dateOfBirth
+      
+    },
     // TASK 7: add a column for Potential, with the ability to (numerically) sort ,
     {
-        title: 'Potential',
-        dataIndex: 'Potential',
-        key: 'Potential',
-        sorter: (a, b) => a.Potential - b.Potential
-        
+      title: 'Hand',
+      dataIndex: 'hand',
+      key: 'hand',    
     },
-    // TASK 8: add a column for Club, with the ability to (alphabetically) sort
-    {
-        title: 'Club',
-        dataIndex: 'Club',
-        key: 'Club',
-        sorter: (a, b) => a.Club.localeCompare(b.Club)
-        
-    },
-    // TASK 9: add a column for Value - no sorting required
-    {
-        title: 'Value',
-        dataIndex: 'Value',
-        key: 'Value'
-    }
-];
+  ];
 
 
 class PlayersPage extends React.Component {
@@ -134,48 +125,54 @@ class PlayersPage extends React.Component {
             this.setState({ playersResults: res.results })
         })
 
+        getAllPlayers().then(res => {
+            console.log(res.results)
+            // TASK 1: set the correct state attribute to res.results
+            console.log("äsdsad")
+            console.log(res.results)
+            this.setState({ playersResults: res.results })
+          })
+
         // TASK 25: call getPlayer with the appropriate parameter and set update the correct state variable. 
         // See the usage of getMatch in the componentDidMount method of MatchesPage for a hint! 
         getPlayer(this.state.selectedPlayerId).then(res => {
             this.setState({ selectedPlayerDetails: res.results[0] })
         })
+
     }
 
     render() {
         return (
 
-            <div>
+            <div style={{ backgroundImage: `url(${background})`, backgroundPosition: 'center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', position: 'absolute', top: '0', bottom: '0', width: '100%'}}>
 
                 <MenuBar />
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                            <label>Name</label>
+                            <label style={{color:'white'}}>Name</label>
                             <FormInput placeholder="Name" value={this.state.nameQuery} onChange={this.handleNameQueryChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                            <label>Nationality</label>
+                            <label style={{color:'white'}}>Nationality</label>
                             <FormInput placeholder="Nationality" value={this.state.nationalityQuery} onChange={this.handleNationalityQueryChange} />
                         </FormGroup></Col>
                         {/* TASK 26: Create a column for Club, using the elements and style we followed in the above two columns. Use the onChange method (handleClubQueryChange)  */}
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                            <label>Club</label>
-                            <FormInput placeholder="Club" value={this.state.clubQuery} onChange={this.handleClubQueryChange} />
+                            <label style={{color:'white'}}>Hand</label>
+                            <FormInput placeholder="Hand" value={this.state.clubQuery} onChange={this.handleClubQueryChange} />
                         </FormGroup></Col>
                     </Row>
                     <br></br>
                     <Row>
-                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                            <label>Rating</label>
-                            <Slider range defaultValue={[50, 100]} onChange={this.handleRatingChange} />
-
-                        </FormGroup></Col>
+                        <Col flex={2}>
+                            <FormGroup style={{ width: '20vw', margin: '0 auto' }}>
+                                <label style={{color:'white'}}>Date of birth</label>
+                                <Slider  min={1970} max={2022} range defaultValue={[1970, 2022]} onChange={this.handleRatingChange} />
+                            </FormGroup>
+                        </Col>
                         {/* TASK 27: Create a column with a label and slider in a FormGroup item for filtering by Potential. See the column above for reference and use the onChange method (handlePotentialChange)  */}
-                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                            <label>Potential</label>
-                            <Slider range defaultValue={[50, 100]} onChange={this.handlePotentialChange} />
-
-                        </FormGroup></Col>
+            
                         <Col flex={2}><FormGroup style={{ width: '10vw' }}>
                             <Button style={{ marginTop: '4vh' }} onClick={this.updateSearchResults}>Search</Button>
                         </FormGroup></Col>
@@ -187,7 +184,7 @@ class PlayersPage extends React.Component {
                 <Divider />
                 {/* TASK 24: Copy in the players table from the Home page, but use the following style tag: style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }} - this should be one line of code! */}
                 <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
-                    <h3>Players</h3>
+                    <h3 style={{color:'white'}}>Players</h3>
                     <Table dataSource={this.state.playersResults} columns={playerColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/>
                 </div>
                 <Divider />
@@ -278,41 +275,6 @@ class PlayersPage extends React.Component {
                                 </Col >
                                 <Col  push={2} flex={2}>
                                 {/*TASK 32: In case the player is a GK, show a radar chart (replacing 'null' below) with the labels: Agility, Ball Control, Passing, Positioning, Stamina, Strength */}
-
-                                    {this.state.selectedPlayerDetails.BestPosition === 'GK'?
-                                    <RadarChart
-                                    data={[this.state.selectedPlayerDetails]}
-                                    tickFormat={t => wideFormat(t)}
-                                    startingAngle={0}
-                                    domains={[
-                                        { name: 'Penalties', domain: [0, 100], getValue: d => d.GKPenalties },
-                                        { name: 'Diving', domain: [0, 100], getValue: d => d.GKDiving },
-                                        { name: 'Handling', domain: [0, 100], getValue: d => d.GKHandling },
-                                        { name: 'Kicking', domain: [0, 100], getValue: d => d.GKKicking },
-                                        { name: 'Positioning', domain: [0, 100], getValue: d => d.GKPositioning },
-                                        { name: 'Reflexes', domain: [0, 100], getValue: d => d.GKReflexes }
-                                    ]}
-                                    width={450}
-                                    height={400}
-                                />
-                                    
-                                    :<RadarChart
-                                data={[this.state.selectedPlayerDetails]}
-                                tickFormat={t => wideFormat(t)}
-                                startingAngle={0}
-                                domains={[
-                                    { name: 'Agility', domain: [0, 100], getValue: d => d.NAdjustedAgility },
-                                    { name: 'Ball Control', domain: [0, 100], getValue: d => d.NBallControl },
-                                    { name: 'Passing', domain: [0, 100], getValue: d => d.NPassing },
-                                    { name: 'Positioning', domain: [0, 100], getValue: d => d.NPositioning },
-                                    { name: 'Stamina', domain: [0, 100], getValue: d => d.NStamina },
-                                    { name: 'Strength', domain: [0, 100], getValue: d => d.NStrength }
-                                ]}
-                                width={450}
-                                height={400}
-                                
-                            />}
-                                
                                 </Col>
                             </Row>
                         </CardBody>

@@ -53,7 +53,6 @@ const matchColumns = [
     dataIndex: 'tourney',
     key: 'tourney',
     sorter: (a, b) => a.firstName.localeCompare(b.firstName),
-    render: (text, row) => <a href={`/players?id=${row.PlayerId}`}>{text}</a>
   },
   {
     title: 'Date',
@@ -74,10 +73,10 @@ const matchColumns = [
     
   },
   {
-    title: 'Looser',
-    dataIndex: 'looser',
+    title: 'Loser',
+    dataIndex: 'loser',
     key: 'loser',   
-    sorter: (a, b) => a.looser - b.looser 
+    sorter: (a, b) => a.loser - b.loser 
   },
   {
     title: 'Score',
