@@ -6,10 +6,21 @@ import {
 } from 'antd'
 
 import MenuBar from '../components/MenuBar';
-import { getAllMatches, getAllPlayers } from '../fetcher'
+import { getAllMatches, getAllPlayers, getPlayerMatches } from '../fetcher'
 import background from "../Images/red2.png";
 const { Column, ColumnGroup } = Table;
 const { Option } = Select;
+
+const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === 'Disabled User',
+      // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
 
 const matchColumns = [
   {
@@ -60,12 +71,18 @@ class HomePage extends React.Component {
       matchesResults: [],
       matchesPageNumber: 1,
       matchesPageSize: 10,
-      playersResults: [],
+      winnerMatchResults: [],
+      looserMatchResults: [],
+      playerIdQuery: '',
+      tourneyQuery: '',
+      dateQuery: '',
       pagination: null  
     }
 
     this.leagueOnChange = this.leagueOnChange.bind(this)
     this.goToMatch = this.goToMatch.bind(this)
+    this.handleCheckbox = this.handleCheckbox.bind(this)
+    this.handleCheckboxProps = this.handleCheckboxProps.bind(this)
   }
 
 
@@ -82,7 +99,7 @@ class HomePage extends React.Component {
   }
 
   componentDidMount() {
-    getAllMatches(null, null, 'D1').then(res => {
+    getAllMatches(null, null, 'All').then(res => {
       this.setState({ matchesResults: res.results })
     })
 
@@ -97,6 +114,27 @@ class HomePage extends React.Component {
  
   }
 
+  handleCheckbox(selectedRowKeys, selectedRows){
+
+    getPlayerMatches(selectedRows[0].WinnerId, selectedRows[0].tourney, selectedRows[0].date).then(res => {
+        this.setState({ winnerMatchResults: res.results })
+    })
+
+    getPlayerMatches(selectedRows[0].LoserId, selectedRows[0].tourney, selectedRows[0].date).then(res => {
+        this.setState({ looserMatchResults: res.results })
+    })
+    console.log(selectedRows[0].LoserId);
+  }
+
+  handleCheckboxProps = (record) => ({
+    disabled: record.name === 'Disabled User',
+    // Column configuration not to be checked
+    name: record.name,
+  });
+
+  
+
+
 
   render() {
 
@@ -105,16 +143,16 @@ class HomePage extends React.Component {
         <MenuBar />
         <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
           <h3 style={{ color:'white' }}>Matches</h3>
-              <Table dataSource={this.state.matchesResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
+              <Table dataSource={this.state.matchesResults} rowSelection={{type: "radio", onChange: this.handleCheckbox, getCheckboxProps: this.handleCheckboxProps,}} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
         </div>
         <div style={{display: 'flex'}}>
             <div style={{ width: '50vw', margin: '0 2vh', marginTop: '2vh' }}>
                 <h3 style={{ color:'white' }}>Winner</h3>
-                <Table dataSource={this.state.matchesResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
+                <Table dataSource={this.state.winnerMatchResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
             </div>
             <div style={{ width: '50vw', margin: '0 2vh', marginTop: '2vh' }}>
                 <h3 style={{ color:'white' }}>Loser</h3>
-                <Table dataSource={this.state.matchesResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
+                <Table dataSource={this.state.looserMatchResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
             </div>
         </div>
       </div>

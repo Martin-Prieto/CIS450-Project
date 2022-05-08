@@ -6,10 +6,25 @@ import {
 } from 'antd'
 
 import MenuBar from '../components/MenuBar';
-import { getAllMatches, getAllPlayers } from '../fetcher'
+import { getAllMatches, getAllPlayers, getChampions } from '../fetcher'
 import background from "../Images/red2.png";
 const { Column, ColumnGroup } = Table;
 const { Option } = Select;
+
+const championColumns = [
+  {
+    title: 'Year',
+    dataIndex: 'year',
+    key: 'year',
+  },
+  {
+    title: 'Champion',
+    dataIndex: 'champion',
+    key: 'champion',
+  },
+
+];
+
 
 
 const playerColumns = [
@@ -46,7 +61,6 @@ const matchColumns = [
     title: 'Tourney',
     dataIndex: 'tourney',
     key: 'tourney',
-    sorter: (a, b) => a.Name.localeCompare(b.Name),
   },
   {
     title: 'Date',
@@ -87,13 +101,14 @@ class GrandSlams extends React.Component {
 
     this.state = {
       matchesResults: [],
+      championResults: [],
       matchesPageNumber: 1,
       matchesPageSize: 10,
       playersResults: [],
       pagination: null  
     }
 
-    this.leagueOnChange = this.leagueOnChange.bind(this)
+    this.tourneyOnChange = this.tourneyOnChange.bind(this)
     this.goToMatch = this.goToMatch.bind(this)
   }
 
@@ -102,23 +117,31 @@ class GrandSlams extends React.Component {
     window.location = `/matches?id=${matchId}`
   }
 
-  leagueOnChange(value) {
+  tourneyOnChange(value) {
+    console.log(value)
     // TASK 2: this value should be used as a parameter to call getAllMatches in fetcher.js with the parameters page and pageSize set to null
     // then, matchesResults in state should be set to the results returned - see a similar function call in componentDidMount()
     getAllMatches(null, null, value).then(res => {
       this.setState({ matchesResults: res.results })
     })
+
+    getChampions(null, null, value).then(res => {
+      this.setState({ championResults: res.results })
+    })
   }
 
   componentDidMount() {
-    getAllMatches(null, null, 'D1').then(res => {
+    getAllMatches(null, null, 'Wimbledon').then(res => {
       this.setState({ matchesResults: res.results })
+    })
+
+    getChampions(null, null, 'Wimbledon').then(res => {
+      this.setState({ championResults: res.results })
     })
 
     getAllPlayers().then(res => {
       console.log(res.results)
       // TASK 1: set the correct state attribute to res.results
-      console.log("äsdsad")
       console.log(res.results)
       this.setState({ playersResults: res.results })
     })
@@ -136,18 +159,17 @@ class GrandSlams extends React.Component {
           <div style={{marginRight: '8vw'}}>
             <div style={{ width: '50vw', margin: '0 2vh', marginTop: '0' }}>
               <h3 style={{color: 'white'}}>Grand Slams</h3>
-              <Select defaultValue="Wimbeldon" style={{ width: 120 }} onChange={this.leagueOnChange}>
-                <Option value="WI">Wimbeldon</Option>
-                {/* TASK 3: Take a look at Dataset Information.md from MS1 and add other options to the selector here  */}
-                <Option value="UO">US Open</Option>
-                <Option value="AO">Australian Open</Option>
-                <Option value="AO">French Open</Option>
+              <Select defaultValue="Wimbledon" style={{ width: 120 }} onChange={this.tourneyOnChange}>
+                <Option value="Wimbledon">Wimbledon</Option>
+                <Option value="US Open">US Open</Option>
+                <Option value="Australian Open">Australian Open</Option>
+                <Option value="Roland Garros">Roland Garros</Option>
               </Select>
                   <Table dataSource={this.state.matchesResults} columns={matchColumns}  pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
             </div>
             <div style={{ width: '50vw', margin: '0 2vh', marginTop: '0' }}>
               <h3 style={{color: 'white'}}>Champions</h3>
-              <Table dataSource={this.state.playersResults} columns={playerColumns}  pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
+              <Table dataSource={this.state.championResults} columns={championColumns}  pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
             </div>
           </div>
           <div style={{swidth: '30vw', margin: '0 0', marginTop: '5vh' }}>

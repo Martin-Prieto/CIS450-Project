@@ -83,7 +83,7 @@ class HomePage extends React.Component {
   }
 
   componentDidMount() {
-    getAllMatches(null, null, 'D1').then(res => {
+    getAllMatches(null, null, 'All').then(res => {
       this.setState({ matchesResults: res.results })
     })
 

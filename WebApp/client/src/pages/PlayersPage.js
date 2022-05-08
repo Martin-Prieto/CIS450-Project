@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
-import { getAllMatches, getAllPlayers } from '../fetcher'
+import { getAdvancedDetails, getAllPlayers } from '../fetcher'
 
 import {
     Table,
@@ -62,8 +62,11 @@ class PlayersPage extends React.Component {
             handQuery: '',
             birthHighQuery: 2024,
             birthLowQuery: 0,
+            timeHighQuery: 2024,
+            timeLowQuery: 0,
             selectedPlayerId: window.location.search ? window.location.search.substring(1).split('=')[1] : 229594,
             selectedPlayerDetails: null,
+            advancedPlayerDetails: null,
             playersResults: []
 
         }
@@ -73,6 +76,7 @@ class PlayersPage extends React.Component {
         this.handleNationalityQueryChange = this.handleNationalityQueryChange.bind(this)
         this.handleHandQueryChange = this.handleHandQueryChange.bind(this)
         this.handleBirthChange = this.handleBirthChange.bind(this)
+        this.handleTimeChange = this.handleTimeChange.bind(this)
     }
 
     
@@ -96,10 +100,21 @@ class PlayersPage extends React.Component {
         this.setState({ birthHighQuery: value[1] })
     }
 
+    handleTimeChange(value) {
+        this.setState({ timeLowQuery: value[0] })
+        this.setState({ timeHighQuery: value[1] })
+    }
+
+
+
     updateSearchResults() {
         //TASK 23: call getPlayerSearch and update playerResults in state. See componentDidMount() for a hint
         getPlayerSearch(this.state.nameQuery, this.state.nationalityQuery, this.state.handQuery, this.state.birthHighQuery, this.state.birthLowQuery, null, null).then(res => {
             this.setState({ playersResults: res.results })
+        })
+
+        getAdvancedDetails(this.state.selectedPlayerId, this.state.timeHighQuery, this.state.timeLowQuery).then(res => {
+            this.setState({ advancedPlayerDetails: res.results[0] })
         })
     }
 
@@ -109,10 +124,7 @@ class PlayersPage extends React.Component {
         })
 
         getAllPlayers().then(res => {
-            console.log(res.results)
             // TASK 1: set the correct state attribute to res.results
-            console.log("äsdsad")
-            console.log(res.results)
             this.setState({ playersResults: res.results })
           })
 
@@ -121,6 +133,13 @@ class PlayersPage extends React.Component {
         getPlayer(this.state.selectedPlayerId).then(res => {
             this.setState({ selectedPlayerDetails: res.results[0] })
         })
+
+        getAdvancedDetails(this.state.selectedPlayerId, this.state.timeHighQuery, this.state.timeLowQuery).then(res => {
+            console.log(res.results)
+            this.setState({ advancedPlayerDetails: res.results[0] })
+        })
+
+
 
     }
 
@@ -165,101 +184,57 @@ class PlayersPage extends React.Component {
                 </Form>
                 <Divider />
                 {/* TASK 24: Copy in the players table from the Home page, but use the following style tag: style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }} - this should be one line of code! */}
-                <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
+                <div style={{ margin: '0 2vh', marginTop: '2vh', display: 'flex' }}>
+                    <div style={{ width: '90vw', margin: '0 2vh'}}>
                     <h3 style={{color:'white'}}>Players</h3>
                     <Table dataSource={this.state.playersResults} columns={playerColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/>
+                    </div> 
+                    {this.state.selectedPlayerDetails ? <div style={{ width: '100vw', marginTop: '10vh'}}>
+                    <Card>
+                    
+                    <CardBody>
+                    <Row gutter='30' align='middle' justify='center'>
+                        <Col flex={2} style={{ textAlign: 'left' }}>
+                        <h3>{this.state.selectedPlayerDetails.Name}</h3>
+                        <Row>
+                                Age: {this.state.selectedPlayerDetails.age}
+                            </Row>
+                            <Row>
+                                Height: {this.state.selectedPlayerDetails.height}
+                            </Row>
+                            <Row>
+                                Nationality: {this.state.selectedPlayerDetails.Nationality}
+                            </Row>
+                        </Col>
+                        <Col flex={2} style={{ align: 'right'}}>
+                            <Col style={{ align: 'middle'}}>
+                                <Button onClick={this.updateSearchResults}>Apply time range</Button> 
+                            </Col>
+                            <Slider  min={1970} max={2022} range defaultValue={[1970, 2022]} onChange={this.handleTimeChange} />
+                            {this.state.advancedPlayerDetails ? <div>
+                                <Row>
+                                Best Surface: {this.state.advancedPlayerDetails.BestSurface}
+                            </Row>
+                            <Row>
+                                Money Earned: {this.state.advancedPlayerDetails.Money}
+                            </Row>
+                            <Row>
+                                Wins: {this.state.advancedPlayerDetails.Wins}
+                            </Row>
+                            <Row>
+                                Losses: {this.state.advancedPlayerDetails.Losses}
+                            </Row>
+                            </div>: null}     
+                        </Col>
+                    </Row>
+                    </CardBody>
+
+                </Card>
+                </div> : null}
                 </div>
                 <Divider />
 
-                {this.state.selectedPlayerDetails ? <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh' }}>
-                    <Card>
-                    
-                        <CardBody>
-                        <Row gutter='30' align='middle' justify='center'>
-                            <Col flex={2} style={{ textAlign: 'left' }}>
-                            <h3>{this.state.selectedPlayerDetails.Name}</h3>
-
-                            </Col>
-
-                            <Col flex={2} style={{ textAlign: 'right' }}>
-                            <img src={this.state.selectedPlayerDetails.Photo} referrerpolicy="no-referrer" alt={null} style={{height:'15vh'}}/>
-
-                            </Col>
-                        </Row>
-                            <Row gutter='30' align='middle' justify='left'>
-                                <Col>
-                                <h5>{this.state.selectedPlayerDetails.Hand}</h5>
-                                </Col>
-                                <Col>
-                                <h5>{this.state.selectedPlayerDetails.JerseyNumber}</h5>
-                                </Col>
-                                <Col>
-                                <h5>{this.state.selectedPlayerDetails.BestPosition}</h5>
-                                </Col>
-                            </Row>
-                            <br>
-                            </br>
-                            <Row gutter='30' align='middle' justify='left'>
-                                <Col>
-                                Age: {this.state.selectedPlayerDetails.age}
-                                </Col>
-                                {/* TASK 28: add two more columns here for Height and Weight, with the appropriate labels as above */}
-                                <Col>
-                                Height: {this.state.selectedPlayerDetails.height}
-                                </Col>
-                                <Col>
-                                Weight: {this.state.selectedPlayerDetails.Weight}
-                                </Col>
-                                <Col flex={2} style={{ textAlign: 'right' }}>
-                                {this.state.selectedPlayerDetails.Nationality}
-                                    <img src={this.state.selectedPlayerDetails.Flag} referrerpolicy="no-referrer" alt={null} style={{height:'3vh', marginLeft: '1vw'}}/>
-                                </Col>
-
-                            </Row>
-                            <Row gutter='30' align='middle' justify='left'>
-                                <Col>
-                                Value: {this.state.selectedPlayerDetails.Value}
-                                </Col>
-                                <Col>
-                                Release Clause: {this.state.selectedPlayerDetails.ReleaseClause}
-                                </Col>
-                                {/* TASK 29: Create 2 additional columns for the attributes 'Wage' and 'Contract Valid Until' (use spaces between the words when labelling!) */}
-                                <Col>
-                                Wage: {this.state.selectedPlayerDetails.Wage}
-                                </Col>
-                                <Col>
-                                Contract Valid Until: {this.state.selectedPlayerDetails.ContractValidUntil}
-                                </Col>                            
-                            </Row>
-                        </CardBody>
-
-                    </Card>
-
-                    <Card style={{marginTop: '2vh'}}>
-                        <CardBody>
-                            <Row gutter='30' align='middle' justify='center'>
-                            <Col flex={2} style={{ textAlign: 'left' }}>
-                            <h6>Skill</h6>
-                            <Rate disabled defaultValue={this.state.selectedPlayerDetails.Skill} />
-                            <h6>International Reputation</h6>
-                            <Rate disabled defaultValue={this.state.selectedPlayerDetails.InternationalReputation} />
-                            <Divider/>
-                            <h6>Best Rating</h6>
-                                <Progress style={{ width: '20vw'}} value={this.state.selectedPlayerDetails.BestOverallRating} >{this.state.selectedPlayerDetails.BestOverallRating}</Progress>
-                                
-                            <h6>Potential</h6>
-                                <Progress style={{ width: '20vw'}} value={this.state.selectedPlayerDetails.Potential} >{this.state.selectedPlayerDetails.Potential}</Progress>    
-                                
-                            <h6>Rating</h6>
-                                <Progress style={{ width: '20vw'}} value={this.state.selectedPlayerDetails.Rating} >{this.state.selectedPlayerDetails.Rating}</Progress>    
-                                </Col >
-                                <Col  push={2} flex={2}>
-                                </Col>
-                            </Row>
-                        </CardBody>
-                    </Card>
-
-                </div> : null}
+                
 
             </div>
         )

@@ -1,7 +1,8 @@
 import config from './config.json'
 
-const getAllMatches = async (page, pagesize, league) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/matches/${league}?page=${page}&pagesize=${pagesize}`, {
+const getAllMatches = async (page, pagesize, tourney) => {
+    console.log(tourney)
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/matches/${tourney}?page=${page}&pagesize=${pagesize}`, {
         method: 'GET',
     })
     return res.json()
@@ -9,6 +10,13 @@ const getAllMatches = async (page, pagesize, league) => {
 
 const getAllPlayers = async (page, pagesize) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/players?page=${page}&pagesize=${pagesize}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const getChampions = async (page, pagesize, tourney) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/champions/${tourney}?page=${page}&pagesize=${pagesize}`, {
         method: 'GET',
     })
     return res.json()
@@ -42,17 +50,20 @@ const getPlayerSearch = async (name, nationality, hand, birth_high, birth_low, p
     return res.json()
 }
 
+const getPlayerMatches = async (playerId, tourney, date, page, pagesize) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/player/matches?PlayerId=${playerId}&Tourney=${tourney}&Date=${date}&page=${page}&pagesize=${pagesize}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
-
-
-
-
-
-
-
-
-
-
+const getAdvancedDetails = async (playerId, timeHigh, timeLow, page, pagesize) => {
+    console.log(timeLow)
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/advanced?PlayerId=${playerId}&TimeHigh=${timeHigh}&TimeLow=${timeLow}&page=${page}&pagesize=${pagesize}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
 export {
     getAllMatches,
@@ -60,5 +71,8 @@ export {
     getMatch,
     getPlayer,
     getMatchSearch,
-    getPlayerSearch
+    getPlayerSearch,
+    getChampions,
+    getPlayerMatches,
+    getAdvancedDetails,
 }
