@@ -223,6 +223,9 @@ class PlayersPage extends React.Component {
                             </div>: null}     
                         </Col>
                     </Row>
+                    <Row>
+                        
+                    </Row>
                     </CardBody>
 
                 </Card>

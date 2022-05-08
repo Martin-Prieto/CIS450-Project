@@ -35,9 +35,8 @@ async function all_matches(req, res) {
     // use this league encoding in your query to furnish the correct results
 
     if (tourney === "All") {
-        connection.query(`SELECT M.match_id AS "key", M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score, best_of
-        FROM Matches M, Players P1, Players P2
-        WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id
+        connection.query(`SELECT M.round AS round, M.match_id AS "key", M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score, best_of
+        FROM (Matches M JOIN Players P1 ON P1.player_id = M.winner_id) JOIN Players P2 ON P2.player_id = M.loser_id
         ORDER BY tourney_date DESC`, function (error, results, fields) {
 
             if (error) {
@@ -49,7 +48,7 @@ async function all_matches(req, res) {
         });
 
     } else {
-        connection.query(`SELECT M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score, best_of
+        connection.query(`SELECT M.round AS round, M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score, best_of
         FROM Matches M, Players P1, Players P2
         WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id AND tourney_name = '${tourney}'
         ORDER BY tourney_date DESC`, function (error, results, fields) {
@@ -70,10 +69,27 @@ async function champions(req, res) {
     const tourney = req.params.tourney ? req.params.tourney : 'Wimbledon'
     //const pagesize = req.params.pagesize ? req.params.pagesize : 10
     // use this league encoding in your query to furnish the correct results
-        connection.query(`SELECT year, champion, first_prize
-        FROM Tourneys
-        WHERE tourney_name = '${tourney}'
-        ORDER BY year DESC`, function (error, results, fields) {
+        connection.query(`WITH champs AS (
+            SELECT year, champion, first_prize, player_id AS champ_id
+            FROM Tourneys T JOIN Players P ON T.champion = P.name
+            WHERE tourney_name = '${tourney}'
+            ORDER BY year DESC
+            ),
+        inter_rankings AS (
+            SELECT ranking_date, ranking, player, points
+            FROM Rankings, champs
+            WHERE Rankings.player = champs.champ_id
+            ),
+        inter_ranks AS (
+            SELECT name, max(ranking) AS mRank, rYear
+            FROM Players, (SELECT *, YEAR(ranking_date) as rYear FROM inter_rankings) R
+            WHERE player_id = player
+            GROUP BY rYear, name
+            )
+        SELECT year, champion, first_prize, mRank as champion_rank
+        FROM champs C JOIN inter_ranks I ON C.champion = I.name
+        WHERE year = rYear
+        ORDER BY year DESC;`, function (error, results, fields) {
 
             if (error) {
                 console.log(error)
@@ -157,7 +173,7 @@ async function player_matches(req, res) {
         date = req.query.Date;
     }
 
-    connection.query(`SELECT  M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score
+    connection.query(`SELECT M.round AS round, M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score
     FROM Matches M, Players P1, Players P2
     WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id AND (P1.player_id  = ${playerId} OR P2.player_id  = ${playerId}) AND tourney_name = '${tourney}';
     

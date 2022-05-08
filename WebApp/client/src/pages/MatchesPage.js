@@ -60,6 +60,12 @@ const matchColumns = [
     key: 'score',    
   },
 
+  {
+    title: 'Round',
+    dataIndex: 'round',
+    key: 'round',    
+  },
+
 ];
 
 class HomePage extends React.Component {
@@ -71,8 +77,8 @@ class HomePage extends React.Component {
       matchesResults: [],
       matchesPageNumber: 1,
       matchesPageSize: 10,
-      winnerMatchResults: [],
-      looserMatchResults: [],
+      winnerMatchResults: null,
+      looserMatchResults: null,
       playerIdQuery: '',
       tourneyQuery: '',
       dateQuery: '',
@@ -146,14 +152,15 @@ class HomePage extends React.Component {
               <Table dataSource={this.state.matchesResults} rowSelection={{type: "radio", onChange: this.handleCheckbox, getCheckboxProps: this.handleCheckboxProps,}} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
         </div>
         <div style={{display: 'flex'}}>
-            <div style={{ width: '50vw', margin: '0 2vh', marginTop: '2vh' }}>
+            {this.state.looserMatchResults ? <div style={{ width: '50vw', margin: '0 2vh', marginTop: '2vh' }}>
                 <h3 style={{ color:'white' }}>Winner</h3>
                 <Table dataSource={this.state.winnerMatchResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
-            </div>
-            <div style={{ width: '50vw', margin: '0 2vh', marginTop: '2vh' }}>
+            </div> : null}
+
+            {this.state.looserMatchResults ? <div style={{ width: '50vw', margin: '0 2vh', marginTop: '2vh' }}>
                 <h3 style={{ color:'white' }}>Loser</h3>
                 <Table dataSource={this.state.looserMatchResults} columns={matchColumns} pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
-            </div>
+            </div>: null}
         </div>
       </div>
     )

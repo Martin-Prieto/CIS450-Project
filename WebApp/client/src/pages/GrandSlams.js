@@ -32,6 +32,11 @@ const championColumns = [
     dataIndex: 'first_prize',
     key: 'first_prize',
   },
+  {
+    title: 'Ranking',
+    dataIndex: 'champion_rank',
+    key: 'champion_rank',
+  },
 
 ];
 
