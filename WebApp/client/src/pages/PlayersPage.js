@@ -4,15 +4,11 @@ import { getAdvancedDetails, getAllPlayers } from '../fetcher'
 
 import {
     Table,
-    Pagination,
-    Select,
     Row,
     Col,
     Divider,
     Slider,
-    Rate 
 } from 'antd'
-import { RadarChart } from 'react-vis';
 import { format } from 'd3-format';
 import background from "../Images/red2.png";
 

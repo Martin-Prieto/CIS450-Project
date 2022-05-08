@@ -1,12 +1,17 @@
 import React from 'react';
+import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
 import {
   Table,
   Pagination,
-  Select
+  Select,
+  Row,
+  Col,
+  Divider,
+  Slider,
 } from 'antd'
 
 import MenuBar from '../components/MenuBar';
-import { getAllMatches, getAllPlayers, getChampions } from '../fetcher'
+import { getAllMatches, getAllPlayers, getChampions, getHandStats } from '../fetcher'
 import background from "../Images/red2.png";
 const { Column, ColumnGroup } = Table;
 const { Option } = Select;
@@ -21,6 +26,11 @@ const championColumns = [
     title: 'Champion',
     dataIndex: 'champion',
     key: 'champion',
+  },
+  {
+    title: 'Prize',
+    dataIndex: 'first_prize',
+    key: 'first_prize',
   },
 
 ];
@@ -105,11 +115,16 @@ class GrandSlams extends React.Component {
       matchesPageNumber: 1,
       matchesPageSize: 10,
       playersResults: [],
+      slamInfoResults: [],
+      timeLowQuery: 0,
+      timeHighQuery: 2024,
       pagination: null  
     }
 
     this.tourneyOnChange = this.tourneyOnChange.bind(this)
     this.goToMatch = this.goToMatch.bind(this)
+    this.handleTimeChange = this.handleTimeChange.bind(this)
+    this.updateSearchResults = this.updateSearchResults.bind(this)
   }
 
 
@@ -146,8 +161,26 @@ class GrandSlams extends React.Component {
       this.setState({ playersResults: res.results })
     })
 
+    getHandStats(this.state.timeHighQuery, this.state.timeLowQuery, null, null).then(res => {
+      console.log(res.results)
+      this.setState({ slamInfoResults: res.results[0] })
+    })
+
  
   }
+
+  handleTimeChange(value) {
+    this.setState({ timeLowQuery: value[0] })
+    this.setState({ timeHighQuery: value[1] })
+}
+
+updateSearchResults() {
+  //TASK 23: call getPlayerSearch and update playerResults in state. See componentDidMount() for a hint
+  getHandStats(this.state.timeHighQuery, this.state.timeLowQuery, null, null).then(res => {
+    console.log(res.results)
+    this.setState({ slamInfoResults: res.results[0] })
+  })
+}
 
 
   render() {
@@ -172,9 +205,23 @@ class GrandSlams extends React.Component {
               <Table dataSource={this.state.championResults} columns={championColumns}  pagination={{ pageSize:50 }} scroll={{ y: 200 }}/>
             </div>
           </div>
-          <div style={{swidth: '30vw', margin: '0 0', marginTop: '5vh' }}>
-              <h3 style={{color: 'white'}}>Aggregate</h3>
-              <Table dataSource={this.state.playersResults} columns={playerColumns} pagination={{ pageSizeOptions:[5, 5], defaultPageSize: 5, showQuickJumper:true }}/>
+          <div style={{swidth: '20vw', width: '35vw', margin: '0 0', marginTop: '5vh' }}>
+              <Card>
+                <CardBody>
+                  <Row>
+                  <Col>
+                    <h3 style={{marginRight: '2vh'}}>Grand Slam Info</h3>
+                    <Row>Right handed winners: {this.state.slamInfoResults.r_prop} </Row>
+                    <Row>Left handed winners: {this.state.slamInfoResults.l_prop}</Row>
+                    <Row>Average Height:  {this.state.slamInfoResults.avg_height}</Row>
+                  </Col>
+                  <Col>
+                      <Button onClick={this.updateSearchResults}>Apply time range</Button> 
+                      <Slider  min={1970} max={2022} range defaultValue={[1970, 2022]} onChange={this.handleTimeChange} />
+                  </Col>
+                  </Row>
+                </CardBody>
+              </Card>
           </div>
         </div>
       </div>

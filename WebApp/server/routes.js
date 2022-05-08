@@ -37,7 +37,8 @@ async function all_matches(req, res) {
     if (tourney === "All") {
         connection.query(`SELECT M.match_id AS "key", M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score, best_of
         FROM Matches M, Players P1, Players P2
-        WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id`, function (error, results, fields) {
+        WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id
+        ORDER BY tourney_date DESC`, function (error, results, fields) {
 
             if (error) {
                 console.log(error)
@@ -50,7 +51,8 @@ async function all_matches(req, res) {
     } else {
         connection.query(`SELECT M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score, best_of
         FROM Matches M, Players P1, Players P2
-        WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id AND tourney_name = '${tourney}'`, function (error, results, fields) {
+        WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id AND tourney_name = '${tourney}'
+        ORDER BY tourney_date DESC`, function (error, results, fields) {
 
             if (error) {
                 console.log(error)
@@ -68,9 +70,10 @@ async function champions(req, res) {
     const tourney = req.params.tourney ? req.params.tourney : 'Wimbledon'
     //const pagesize = req.params.pagesize ? req.params.pagesize : 10
     // use this league encoding in your query to furnish the correct results
-        connection.query(`SELECT year, champion
+        connection.query(`SELECT year, champion, first_prize
         FROM Tourneys
-        WHERE tourney_name = '${tourney}'`, function (error, results, fields) {
+        WHERE tourney_name = '${tourney}'
+        ORDER BY year DESC`, function (error, results, fields) {
 
             if (error) {
                 console.log(error)
@@ -236,21 +239,18 @@ async function search_players(req, res) {
 }
 
 async function advanced_player(req, res) {
-    var playerId = '';
+    var playerId = 1;
     if (req.query.PlayerId != null) {
         playerId = req.query.PlayerId;
     }
-    var timeHigh = '3000';
+    var timeHigh = 3000;
     if (req.query.TimeHigh != null) {
         timeHigh = req.query.TimeHigh;
     }
-    var timeLow = '0';
+    var timeLow = 0;
     if (req.query.TimeLow != null) {
         timeLow = req.query.TimeLow;
     }
-    console.log(timeHigh)
-    console.log(timeLow)
-    console.log(playerId)
 
     connection.query(`WITH surface (surface, wins, name) AS
     (
@@ -295,6 +295,50 @@ FROM surface s, money m, wins w, loser l;`, function (error, results, fields) {
 
 }
 
+async function left_right_stats(req, res) {
+    var timeHigh = 3000;
+    if (req.query.TimeHigh != null) {
+        timeHigh = parseInt(req.query.TimeHigh);
+    }
+    var timeLow = 0;
+    if (req.query.TimeLow != null) {
+        timeLow = parseInt(req.query.TimeLow);
+    }
+
+    connection.query(`WITH top_four_tourneys (tourney_name) AS
+    (SELECT tourney_name
+     FROM Matches
+     GROUP BY tourney_name
+     ORDER BY COUNT(*) DESC
+     LIMIT 4
+    ),
+  t5_data (tourney_name, winner_id) AS
+    (SELECT M.tourney_name as tourney_name, winner_id
+     FROM Matches M
+        INNER JOIN top_four_tourneys t5 ON M.tourney_name = t5.tourney_name
+     WHERE round = "F" AND tourney_date <= ${timeHigh} AND tourney_date >= ${timeLow}
+    ),
+  t5_players (player_id, height, hand) AS
+    (SELECT player_id, height, hand
+     FROM Players P
+      INNER JOIN t5_data ON P.player_id = t5_data.winner_id
+    )
+  SELECT SUM(CASE hand WHEN 'Left' THEN 1 ELSE 0 end)  * 1.0 / COUNT(*) AS l_prop,
+       SUM(CASE hand WHEN 'Right' THEN 1 ELSE 0 end)  * 1.0 / COUNT(*) AS r_prop,
+       AVG(height) AS avg_height
+       FROM t5_players;
+  `, function (error, results, fields) {
+    
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+
+}
+
 
 module.exports = {
     hello,
@@ -305,4 +349,5 @@ module.exports = {
     champions,
     player_matches,
     advanced_player,
+    left_right_stats,
 }

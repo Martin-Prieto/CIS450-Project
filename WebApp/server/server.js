@@ -30,6 +30,8 @@ app.get('/player/matches', routes.player_matches)
 
 app.get('/advanced', routes.advanced_player)
 
+app.get('/handStats', routes.left_right_stats)
+
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
 });

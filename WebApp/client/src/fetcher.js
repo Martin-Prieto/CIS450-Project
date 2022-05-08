@@ -65,6 +65,14 @@ const getAdvancedDetails = async (playerId, timeHigh, timeLow, page, pagesize) =
     return res.json()
 }
 
+const getHandStats = async ( timeHigh, timeLow, page, pagesize) => {
+    console.log(timeLow)
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/handStats?TimeHigh=${timeHigh}&TimeLow=${timeLow}&page=${page}&pagesize=${pagesize}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
 export {
     getAllMatches,
     getAllPlayers,
@@ -75,4 +83,5 @@ export {
     getChampions,
     getPlayerMatches,
     getAdvancedDetails,
+    getHandStats,
 }
