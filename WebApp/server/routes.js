@@ -361,10 +361,18 @@ async function ranking(req, res){
     if (req.query.PlayerId != null) {
         playerId = req.query.PlayerId;
     }
+    var timeHigh = 3000;
+    if (req.query.TimeHigh != null) {
+        timeHigh = parseInt(req.query.TimeHigh);
+    }
+    var timeLow = 0;
+    if (req.query.TimeLow != null) {
+        timeLow = parseInt(req.query.TimeLow);
+    }
 
     connection.query(`Select CAST(SUBSTRING(ranking_date, 1, 4) AS UNSIGNED) AS ranking_date, ranking
     FROM Rankings JOIN Players ON player = player_id
-    WHERE player_id = ${playerId}
+    WHERE player_id = ${playerId} AND ranking_date <= ${timeHigh} AND ranking_date >= ${timeLow}
     ORDER BY ranking_date ASC;
         `, function (error, results, fields) {
     

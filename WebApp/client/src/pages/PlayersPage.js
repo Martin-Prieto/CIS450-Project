@@ -123,9 +123,9 @@ class PlayersPage extends React.Component {
             this.setState({ advancedPlayerDetails: res.results[0] })
         })
 
-        getRanking(this.state.selectedPlayerId ,null, null).then(res => {
+        getRanking(this.state.selectedPlayerId , this.state.timeHighQuery, this.state.timeLowQuery ,null, null).then(res => {
             console.log(res.results)
-            this.setState({ rankingData: res.results[0] })
+            this.setState({ rankingData: res.results })
         })
     }
 
@@ -149,7 +149,7 @@ class PlayersPage extends React.Component {
             this.setState({ advancedPlayerDetails: res.results[0] })
         })
 
-        getRanking(this.state.selectedPlayerId ,null, null).then(res => {
+        getRanking(this.state.selectedPlayerId , this.state.timeHighQuery, this.state.timeLowQuery, null, null).then(res => {
             this.setState({ rankingData: res.results })
             console.log(this.state.rankingData)
         })
