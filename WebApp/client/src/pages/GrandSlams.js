@@ -81,7 +81,6 @@ const matchColumns = [
     title: 'Date',
     dataIndex: 'date',
     key: 'date',
-    sorter: (a, b) => a.date - b.date,
   },
   {
     title: 'Surface',
@@ -92,14 +91,12 @@ const matchColumns = [
     title: 'Winner',
     dataIndex: 'winner',
     key: 'winner',
-    sorter: (a, b) => a.winner - b.winner
     
   },
   {
     title: 'Loser',
     dataIndex: 'loser',
     key: 'loser',   
-    sorter: (a, b) => a.loser - b.loser 
   },
   {
     title: 'Score',

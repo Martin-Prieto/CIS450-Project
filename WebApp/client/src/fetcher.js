@@ -73,6 +73,14 @@ const getHandStats = async ( timeHigh, timeLow, page, pagesize) => {
     return res.json()
 }
 
+const getRanking = async (playerId, page, pagesize) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/ranking?PlayerId=${playerId}&page=${page}&pagesize=${pagesize}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+
 export {
     getAllMatches,
     getAllPlayers,
@@ -84,4 +92,5 @@ export {
     getPlayerMatches,
     getAdvancedDetails,
     getHandStats,
+    getRanking,
 }

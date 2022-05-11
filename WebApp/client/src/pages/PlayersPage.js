@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
-import { getAdvancedDetails, getAllPlayers } from '../fetcher'
+import { getAdvancedDetails, getAllPlayers, getRanking } from '../fetcher'
 
 import {
     Table,
@@ -9,6 +9,15 @@ import {
     Divider,
     Slider,
 } from 'antd'
+import {
+    LineChart,
+    ResponsiveContainer,
+    Legend, Tooltip,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid
+} from 'recharts';
 import { format } from 'd3-format';
 import background from "../Images/red2.png";
 
@@ -63,6 +72,7 @@ class PlayersPage extends React.Component {
             selectedPlayerId: window.location.search ? window.location.search.substring(1).split('=')[1] : 229594,
             selectedPlayerDetails: null,
             advancedPlayerDetails: null,
+            rankingData: [],
             playersResults: []
 
         }
@@ -112,6 +122,11 @@ class PlayersPage extends React.Component {
         getAdvancedDetails(this.state.selectedPlayerId, this.state.timeHighQuery, this.state.timeLowQuery).then(res => {
             this.setState({ advancedPlayerDetails: res.results[0] })
         })
+
+        getRanking(this.state.selectedPlayerId ,null, null).then(res => {
+            console.log(res.results)
+            this.setState({ rankingData: res.results[0] })
+        })
     }
 
     componentDidMount() {
@@ -131,8 +146,12 @@ class PlayersPage extends React.Component {
         })
 
         getAdvancedDetails(this.state.selectedPlayerId, this.state.timeHighQuery, this.state.timeLowQuery).then(res => {
-            console.log(res.results)
             this.setState({ advancedPlayerDetails: res.results[0] })
+        })
+
+        getRanking(this.state.selectedPlayerId ,null, null).then(res => {
+            this.setState({ rankingData: res.results })
+            console.log(this.state.rankingData)
         })
 
 
@@ -185,7 +204,7 @@ class PlayersPage extends React.Component {
                     <h3 style={{color:'white'}}>Players</h3>
                     <Table dataSource={this.state.playersResults} columns={playerColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/>
                     </div> 
-                    {this.state.selectedPlayerDetails ? <div style={{ width: '100vw', marginTop: '10vh'}}>
+                    {this.state.selectedPlayerDetails ? <div style={{ width: '100vw', marginTop: '3vh'}}>
                     <Card>
                     
                     <CardBody>
@@ -224,6 +243,20 @@ class PlayersPage extends React.Component {
                         </Col>
                     </Row>
                     <Row>
+                        
+                        <ResponsiveContainer width="100%" aspect={3}>
+                            <LineChart data={this.state.rankingData} margin={{ right: 300 }}>
+                                <CartesianGrid />
+                                <XAxis dataKey="ranking_date" 
+                                interval={'preserveStartEnd'} />
+                                <YAxis></YAxis>
+                                <Legend />
+                                <Tooltip />
+                                <Line dataKey="ranking"
+                                stroke="red"  />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    
                         
                     </Row>
                     </CardBody>

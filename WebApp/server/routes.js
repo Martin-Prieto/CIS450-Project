@@ -111,7 +111,7 @@ async function all_players(req, res) {
             pagesize = req.query.pagesize;
         }
 
-        connection.query(`SElECT player_id AS PlayerId, name AS Name, hand, dob as dateOfBirth, ioc as Nationality, player_id AS PlayerId
+        connection.query(`SElECT player_id AS PlayerId, name AS Name, hand, dob as dateOfBirth, ioc as Nationality
         FROM Players
         ORDER BY Name        
         LIMIT ${pagesize}
@@ -174,8 +174,8 @@ async function player_matches(req, res) {
     }
 
     connection.query(`SELECT M.round AS round, M.loser_id AS LoserId, M.winner_id AS WinnerId, tourney_name AS tourney, tourney_date AS date, surface, P1.name AS winner, P2.name AS loser, score
-    FROM Matches M, Players P1, Players P2
-    WHERE P1.player_id = M.winner_id AND P2.player_id = M.loser_id AND (P1.player_id  = ${playerId} OR P2.player_id  = ${playerId}) AND tourney_name = '${tourney}';
+    FROM (Matches M JOIN Players P1 ON P1.player_id = M.winner_id) JOIN Players P2 ON P2.player_id = M.loser_id
+    WHERE (P1.player_id  = ${playerId} OR P2.player_id  = ${playerId}) AND tourney_name = '${tourney}';
     
         `, function (error, results, fields) {
     
@@ -355,6 +355,30 @@ async function left_right_stats(req, res) {
 
 }
 
+async function ranking(req, res){
+    console.log(req.query.PlayerId)
+    var playerId = 1;
+    if (req.query.PlayerId != null) {
+        playerId = req.query.PlayerId;
+    }
+
+    connection.query(`Select CAST(SUBSTRING(ranking_date, 1, 4) AS UNSIGNED) AS ranking_date, ranking
+    FROM Rankings JOIN Players ON player = player_id
+    WHERE player_id = ${playerId}
+    ORDER BY ranking_date ASC;
+        `, function (error, results, fields) {
+    
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+
+
+}
+
 
 module.exports = {
     hello,
@@ -366,4 +390,5 @@ module.exports = {
     player_matches,
     advanced_player,
     left_right_stats,
+    ranking,
 }
